@@ -1,6 +1,9 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+const url = require('url');
 const app = express();
 
+app.use(bodyParser.json());
 /*
 Создать приложение на Express.js которое будет иметь 5 вариаций роутов:
 
@@ -13,6 +16,33 @@ POST /post – Страница которая вернет все тело POST
 
 app.get('/', (req, res) => {
     res.send('<h1>Hello, Express.js</h1>');
+});
+
+app.get('/hello', (req, res) => {
+    res.send('<h1>Hello stranger!</h1>');
+});
+
+app.get('/hello/:name', (req, res) => {
+    res.send(`<h1>Hello, ${req.params.name}!</h1>`);
+});
+
+app.all('/sub/*', (req, res) => {
+    const fullURL = url.format({
+        protocol: req.protocol,
+        host: req.get('host'),
+        pathname: req.originalUrl
+    });
+    res.send(`<p>You requested URI: ${fullURL}</p>`);
+});
+
+app.post('/post', (req, res) => {
+    console.log(req.body);
+    if (!req.body || Object.keys(req.body).length == 0) {
+        res.status(404);
+        res.end();
+        return;
+    }
+    res.json(req.body);
 });
 
 app.listen(3000, () => { console.log("Server started") });
